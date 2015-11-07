@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import com.zhuiji7.jigsaw.R;
@@ -21,14 +20,17 @@ import java.util.Random;
 public class GameView extends View {
     Random random = new Random();
     private int level = 3;//默认分3层
-    private int padding = 5;
+    private int padding = 3;
     private Resources mResources;
     private Bitmap mBitmap;
     private ArrayList<Patch> patches;
+    private int viewH;//view的高度
+    private int viewW;//view的宽度
     private int canvasH;//一格画布的高度
     private int canvasW;//一格画布的宽度
     private int bitmapH;//一片图片的高度
     private int bitmapW;//一片图片的宽度
+    private OnFinishListener listener;
     public GameView(Context context){
         this(context, null);
     }
@@ -42,6 +44,27 @@ public class GameView extends View {
 
     }
 
+    //设置等级
+    public void setLevel(int level){
+        this.level = level;
+        bitmapW = mBitmap.getWidth()/level;
+        bitmapH = mBitmap.getHeight()/level;
+        canvasH = viewH/level;
+        canvasW = viewW/level;
+        initPatches();
+        invalidate();
+    }
+
+    //设置图片
+    public void setmBitmap(Bitmap bitmap){
+        this.mBitmap = bitmap;
+        invalidate();
+    }
+
+    public void setOnFinishListener(OnFinishListener listener){
+        this.listener = listener;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -52,155 +75,10 @@ public class GameView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        viewW = w;
+        viewH = h;
         canvasW = w/level;
         canvasH = h/level;
-    }
-
-    private void drawAllPic(ArrayList<Patch> patches,Canvas canvas){
-        int size = patches.size();
-        for(int i = 0;i < size;i++){
-            drawPic(canvas,patches.get(i));
-        }
-    }
-
-    //在画布的指定区域画图片上的指定区域
-    private void drawPic(Canvas canvas,Patch patch){
-        if(patch.isEmpty()){
-            return;
-        }
-        Rect rb = new Rect(patch.getBitmapPicPoint().getX()*bitmapW + padding, patch.getBitmapPicPoint().getY()*bitmapH + padding,
-                (patch.getBitmapPicPoint().getX()+1)*bitmapW - padding, (patch.getBitmapPicPoint().getY()+1)*bitmapH - padding);
-        Rect rc = new Rect(patch.getCanvasPicPoint().getX()*canvasW + padding,patch.getCanvasPicPoint().getY()*canvasH + padding,
-                (patch.getCanvasPicPoint().getX()+1)*canvasW - padding, (patch.getCanvasPicPoint().getY()+1)*canvasH - padding);
-
-        canvas.drawBitmap(mBitmap, rb, rc, null);
-    }
-
-    //点击事件
-    public void click(int x, int y){
-        PicPoint clickPicPoint = new PicPoint();
-        clickPicPoint.setX(x / canvasW);
-        clickPicPoint.setY(y / canvasH);
-        checkAndMove(clickPicPoint);
-    }
-
-
-    //检查所点击的碎片能否移动，如果能移动就移动
-    private void checkAndMove(PicPoint cp){
-        Patch clickPatch =  findPatch(cp);
-        Patch emptyPatch = findEmptyPatch();
-
-        if(isNeighbor(clickPatch,emptyPatch)){
-            change(clickPatch,emptyPatch);
-            invalidate();
-            if(isFinish()){
-                Log.d("ddd", "拼接完成");
-            }
-        }
-
-
-
-//        Patch nearPatch = null;
-//        if(clickPatch.getCanvasPicPoint().getX()-1 >= 0){
-//            PicPoint nearPicPoint = new PicPoint();
-//            nearPicPoint.setX(clickPatch.getCanvasPicPoint().getX()-1);
-//            nearPicPoint.setY(clickPatch.getCanvasPicPoint().getY());
-//            nearPatch = findPatch(nearPicPoint);
-//            if(nearPatch.isEmpty()){
-//                nearPatch.setBitmapPicPoint(clickPatch.getBitmapPicPoint());
-//                clickPatch.setEmpty(true);
-//                nearPatch.setEmpty(false);
-//            }
-//        }
-//        if(clickPatch.getCanvasPicPoint().getX()+1 < level){
-//            PicPoint nearPicPoint = new PicPoint();
-//            nearPicPoint.setX(clickPatch.getCanvasPicPoint().getX()+1);
-//            nearPicPoint.setY(clickPatch.getCanvasPicPoint().getY());
-//            nearPatch = findPatch(nearPicPoint);
-//            if(nearPatch.isEmpty()){
-//                nearPatch.setBitmapPicPoint(clickPatch.getBitmapPicPoint());
-//                clickPatch.setEmpty(true);
-//                nearPatch.setEmpty(false);
-//            }
-//        }
-//
-//        if(clickPatch.getCanvasPicPoint().getY()-1 >= 0){
-//            PicPoint nearPicPoint = new PicPoint();
-//            nearPicPoint.setX(clickPatch.getCanvasPicPoint().getX());
-//            nearPicPoint.setY(clickPatch.getCanvasPicPoint().getY()-1);
-//            nearPatch = findPatch(nearPicPoint);
-//            if(nearPatch.isEmpty()){
-//                nearPatch.setBitmapPicPoint(clickPatch.getBitmapPicPoint());
-//                clickPatch.setEmpty(true);
-//                nearPatch.setEmpty(false);
-//            }
-//        }
-//
-//        if(clickPatch.getCanvasPicPoint().getY()+1 <level){
-//            PicPoint nearPicPoint = new PicPoint();
-//            nearPicPoint.setX(clickPatch.getCanvasPicPoint().getX());
-//            nearPicPoint.setY(clickPatch.getCanvasPicPoint().getY()+1);
-//            nearPatch = findPatch(nearPicPoint);
-//            if(nearPatch.isEmpty()){
-//                nearPatch.setBitmapPicPoint(clickPatch.getBitmapPicPoint());
-//                clickPatch.setEmpty(true);
-//                nearPatch.setEmpty(false);
-//            }
-//        }
-
-    }
-
-    //是否临近的两个图片碎片
-    private boolean isNeighbor(Patch fPatch,Patch sPatch){
-        PicPoint nearPicPoint = new PicPoint();
-        nearPicPoint.setX(fPatch.getCanvasPicPoint().getX()+1);
-        nearPicPoint.setY(fPatch.getCanvasPicPoint().getY());
-        if(sPatch.getCanvasPicPoint().equals(nearPicPoint)){
-            return true;
-        }
-        nearPicPoint.setX(fPatch.getCanvasPicPoint().getX()-1);
-        nearPicPoint.setY(fPatch.getCanvasPicPoint().getY());
-        if(sPatch.getCanvasPicPoint().equals(nearPicPoint)){
-            return true;
-        }
-        nearPicPoint.setX(fPatch.getCanvasPicPoint().getX());
-        nearPicPoint.setY(fPatch.getCanvasPicPoint().getY()+1);
-        if(sPatch.getCanvasPicPoint().equals(nearPicPoint)){
-            return true;
-        }
-        nearPicPoint.setX(fPatch.getCanvasPicPoint().getX());
-        nearPicPoint.setY(fPatch.getCanvasPicPoint().getY()-1);
-        if(sPatch.getCanvasPicPoint().equals(nearPicPoint)){
-            return true;
-        }
-        return false;
-    }
-
-    //根据画布上的位置查找相应的图片碎片对象
-    private Patch findPatch(PicPoint cp){
-        Patch p = null;
-        int size = patches.size();
-        for(int i = 0;i < size; i++){
-            Patch patch = patches.get(i);
-            if(patch.getCanvasPicPoint().getX() == cp.getX() && patch.getCanvasPicPoint().getY() == cp.getY()){
-                p = patch;
-                break;
-            }
-        }
-        return p;
-    }
-    //查找空图片碎片
-    private Patch findEmptyPatch(){
-        Patch p = null;
-        int size = patches.size();
-        for(int i = 0;i < size; i++){
-            Patch patch = patches.get(i);
-            if(patch.isEmpty()){
-                p = patch;
-                break;
-            }
-        }
-        return p;
     }
 
     private void initPatches(){
@@ -281,6 +159,104 @@ public class GameView extends View {
 
     }
 
+
+    private void drawAllPic(ArrayList<Patch> patches,Canvas canvas){
+        int size = patches.size();
+        for(int i = 0;i < size;i++){
+            drawPic(canvas,patches.get(i));
+        }
+    }
+
+    //在画布的指定区域画图片上的指定区域
+    private void drawPic(Canvas canvas,Patch patch){
+        if(patch.isEmpty()){
+            return;
+        }
+        Rect rb = new Rect(patch.getBitmapPicPoint().getX()*bitmapW + padding, patch.getBitmapPicPoint().getY()*bitmapH + padding,
+                (patch.getBitmapPicPoint().getX()+1)*bitmapW - padding, (patch.getBitmapPicPoint().getY()+1)*bitmapH - padding);
+        Rect rc = new Rect(patch.getCanvasPicPoint().getX()*canvasW + padding,patch.getCanvasPicPoint().getY()*canvasH + padding,
+                (patch.getCanvasPicPoint().getX()+1)*canvasW - padding, (patch.getCanvasPicPoint().getY()+1)*canvasH - padding);
+
+        canvas.drawBitmap(mBitmap, rb, rc, null);
+    }
+
+    //点击事件
+    public void click(int x, int y){
+        PicPoint clickPicPoint = new PicPoint();
+        clickPicPoint.setX(x / canvasW);
+        clickPicPoint.setY(y / canvasH);
+        checkAndMove(clickPicPoint);
+    }
+
+
+    //检查所点击的碎片能否移动，如果能移动就移动
+    private void checkAndMove(PicPoint cp){
+        Patch clickPatch =  findPatch(cp);
+        Patch emptyPatch = findEmptyPatch();
+
+        if(isNeighbor(clickPatch,emptyPatch)){
+            change(clickPatch,emptyPatch);
+            invalidate();
+            if(isFinish()){
+                listener.onFinish();
+            }
+        }
+    }
+
+    //是否临近的两个图片碎片
+    private boolean isNeighbor(Patch fPatch,Patch sPatch){
+        PicPoint nearPicPoint = new PicPoint();
+        nearPicPoint.setX(fPatch.getCanvasPicPoint().getX()+1);
+        nearPicPoint.setY(fPatch.getCanvasPicPoint().getY());
+        if(sPatch.getCanvasPicPoint().equals(nearPicPoint)){
+            return true;
+        }
+        nearPicPoint.setX(fPatch.getCanvasPicPoint().getX()-1);
+        nearPicPoint.setY(fPatch.getCanvasPicPoint().getY());
+        if(sPatch.getCanvasPicPoint().equals(nearPicPoint)){
+            return true;
+        }
+        nearPicPoint.setX(fPatch.getCanvasPicPoint().getX());
+        nearPicPoint.setY(fPatch.getCanvasPicPoint().getY()+1);
+        if(sPatch.getCanvasPicPoint().equals(nearPicPoint)){
+            return true;
+        }
+        nearPicPoint.setX(fPatch.getCanvasPicPoint().getX());
+        nearPicPoint.setY(fPatch.getCanvasPicPoint().getY()-1);
+        if(sPatch.getCanvasPicPoint().equals(nearPicPoint)){
+            return true;
+        }
+        return false;
+    }
+
+    //根据画布上的位置查找相应的图片碎片对象
+    private Patch findPatch(PicPoint cp){
+        Patch p = null;
+        int size = patches.size();
+        for(int i = 0;i < size; i++){
+            Patch patch = patches.get(i);
+            if(patch.getCanvasPicPoint().getX() == cp.getX() && patch.getCanvasPicPoint().getY() == cp.getY()){
+                p = patch;
+                break;
+            }
+        }
+        return p;
+    }
+    //查找空图片碎片
+    private Patch findEmptyPatch(){
+        Patch p = null;
+        int size = patches.size();
+        for(int i = 0;i < size; i++){
+            Patch patch = patches.get(i);
+            if(patch.isEmpty()){
+                p = patch;
+                break;
+            }
+        }
+        return p;
+    }
+
+
     //一个图片碎片跟空的图片碎片对调
     private Patch change(Patch pctch,Patch patchEmpty){
         pctch.setEmpty(true);
@@ -304,5 +280,9 @@ public class GameView extends View {
             }
         }
         return isfinish;
+    }
+
+    public interface OnFinishListener{
+       public void onFinish();
     }
 }
