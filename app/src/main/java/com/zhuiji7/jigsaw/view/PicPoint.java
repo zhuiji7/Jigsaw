@@ -23,10 +23,16 @@ public class PicPoint {
         this.y = y;
     }
 
-    public boolean equals(PicPoint picPoint){
-        if(x == picPoint.getX() && y == picPoint.getY()){
-            return true;
-        }else{
+
+    @Override
+    public boolean equals(Object picPoint) {
+        try {
+            if(x == ((PicPoint)picPoint).getX() && y == ((PicPoint)picPoint).getY()){
+                return true;
+            }else{
+                return false;
+            }
+        } catch (Exception e) {
             return false;
         }
     }
