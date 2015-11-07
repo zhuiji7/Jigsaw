@@ -22,4 +22,12 @@ public class PicPoint {
     public void setY(int y) {
         this.y = y;
     }
+
+    public boolean equals(PicPoint picPoint){
+        if(x == picPoint.getX() && y == picPoint.getY()){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }

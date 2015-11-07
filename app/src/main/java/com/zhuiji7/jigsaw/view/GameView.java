@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import com.zhuiji7.jigsaw.R;
@@ -45,9 +46,7 @@ public class GameView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
         drawAllPic(patches, canvas);
-
 
     }
 
@@ -65,7 +64,7 @@ public class GameView extends View {
         }
     }
 
-    //画图
+    //在画布的指定区域画图片上的指定区域
     private void drawPic(Canvas canvas,Patch patch){
         if(patch.isEmpty()){
             return;
@@ -138,20 +137,14 @@ public class GameView extends View {
             }
         }
         invalidate();
-    }
 
-    //两个图片碎片交换
-    private Patch change(Patch pctch,Patch patchEmpty){
-        pctch.setEmpty(true);
-        patchEmpty.setEmpty(false);
-        patchEmpty.setBitmapPicPoint(pctch.getBitmapPicPoint());
-        return pctch;
+        if(isFinish()){
+            Log.d("ddd","拼接完成");
+        }
     }
 
 
-
-
-
+    //根据画布上的位置查找相应的图片碎片对象
     private Patch findPatch(PicPoint cp){
         Patch p = null;
         int size = patches.size();
@@ -190,38 +183,80 @@ public class GameView extends View {
             }
         }
 
-
+        for(int i = 0;i < 50*level;i++){
+            emptyPatch = exchange(emptyPatch);
+        }
 
     }
-
-    private void exchange(Patch emptyPatch){
+    //让空的碎片随机跟上下左右中的某一块对调位置
+    private Patch exchange(Patch emptyPatch){
         int randomtype = random.nextInt(4);
+        PicPoint cp = new PicPoint();
         switch (randomtype){
-            case 0:
-
+            case 0: //
                 if (emptyPatch.getCanvasPicPoint().getX() - 1 >= 0){
-
+                    cp.setX(emptyPatch.getCanvasPicPoint().getX() - 1);
+                    cp.setY(emptyPatch.getCanvasPicPoint().getY());
                 }else {
-
+                    cp.setX(emptyPatch.getCanvasPicPoint().getX() + 1);
+                    cp.setY(emptyPatch.getCanvasPicPoint().getY());
                 }
                 break;
             case 1:
+                if (emptyPatch.getCanvasPicPoint().getX() + 1 < level){
+                    cp.setX(emptyPatch.getCanvasPicPoint().getX() + 1);
+                    cp.setY(emptyPatch.getCanvasPicPoint().getY());
+                }else {
+                    cp.setX(emptyPatch.getCanvasPicPoint().getX() - 1);
+                    cp.setY(emptyPatch.getCanvasPicPoint().getY());
+                }
                 break;
             case 2:
+                if (emptyPatch.getCanvasPicPoint().getY() - 1 >= 0){
+                    cp.setX(emptyPatch.getCanvasPicPoint().getX());
+                    cp.setY(emptyPatch.getCanvasPicPoint().getY() - 1);
+                }else {
+                    cp.setX(emptyPatch.getCanvasPicPoint().getX());
+                    cp.setY(emptyPatch.getCanvasPicPoint().getY() + 1);
+                }
                 break;
             case 3:
+                if (emptyPatch.getCanvasPicPoint().getY() + 1 < level){
+                    cp.setX(emptyPatch.getCanvasPicPoint().getX());
+                    cp.setY(emptyPatch.getCanvasPicPoint().getY() + 1);
+                }else {
+                    cp.setX(emptyPatch.getCanvasPicPoint().getX());
+                    cp.setY(emptyPatch.getCanvasPicPoint().getY() - 1);
+                }
                 break;
         }
+
+        Patch patch = findPatch(cp);
+        return change(patch,emptyPatch);
+
     }
 
+    //一个图片碎片跟空的图片碎片对调
+    private Patch change(Patch pctch,Patch patchEmpty){
+        pctch.setEmpty(true);
+        patchEmpty.setEmpty(false);
+        patchEmpty.setBitmapPicPoint(pctch.getBitmapPicPoint());
+        pctch.setBitmapPicPoint(null);
+        return pctch;
+    }
+    //检查是否拼图完成
     private boolean isFinish(){
         boolean isfinish = true;
         int size = patches.size();
         for(int i = 0;i < size;i++){
             Patch patch = patches.get(i);
             if(patch.getCanvasPicPoint().getX() != patch.getBitmapPicPoint().getX() || patch.getBitmapPicPoint().getY() != patch.getCanvasPicPoint().getY()){
-                isfinish = false;
-                break;
+                if(patch.getCanvasPicPoint().getX() == level - 1 && patch.getCanvasPicPoint().getY() == level - 1 && patch.isEmpty()){
+
+                }else{
+                    isfinish = false;
+                    break;
+                }
             }
         }
         return isfinish;
