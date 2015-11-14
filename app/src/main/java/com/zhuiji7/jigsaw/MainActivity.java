@@ -2,7 +2,6 @@ package com.zhuiji7.jigsaw;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -21,13 +20,6 @@ public class MainActivity extends AppCompatActivity {
         button = (Button)this.findViewById(R.id.button);
 
 
-        gameView.setOnTouchListener(new View.OnTouchListener(){
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                gameView.click((int)event.getX(),(int)event.getY());
-                return true;
-            }
-        });
         gameView.setOnFinishListener(new GameView.OnFinishListener() {
             @Override
             public void onFinish() {

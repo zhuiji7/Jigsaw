@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.zhuiji7.jigsaw.R;
@@ -181,13 +182,18 @@ public class GameView extends View {
     }
 
     //点击事件
-    public void click(int x, int y){
+    private void click(int x, int y){
         PicPoint clickPicPoint = new PicPoint();
         clickPicPoint.setX(x / canvasW);
         clickPicPoint.setY(y / canvasH);
         checkAndMove(clickPicPoint);
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        click((int)event.getX(),(int)event.getY());
+        return super.onTouchEvent(event);
+    }
 
     //检查所点击的碎片能否移动，如果能移动就移动
     private void checkAndMove(PicPoint cp){
