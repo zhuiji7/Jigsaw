@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">益智拼图</string>
+    <string name="settings_1">简单</string>
+    <string name="settings_2">中级</string>
+    <string name="settings_3">高级</string>
+    <string name="settings_4">settings</string>
+
+
 </resources>
