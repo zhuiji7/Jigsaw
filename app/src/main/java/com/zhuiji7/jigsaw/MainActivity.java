@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         gameView.setOnFinishListener(new GameView.OnFinishListener() {
             @Override
             public void onFinish() {
-                Toast.makeText(MainActivity.this,"恭喜你完成拼图",Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "恭喜你完成拼图", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -50,5 +50,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        gameView.releaseSoundPool();
     }
 }

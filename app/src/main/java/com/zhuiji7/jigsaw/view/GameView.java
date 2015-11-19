@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,7 +21,8 @@ import java.util.Random;
  * Created by cww on 15-11-5.
  */
 public class GameView extends View {
-    Random random = new Random();
+    private Context mycontext;
+    private Random random = new Random();
     private int level = 3;//默认分3层
     private int padding = 3;
     private Resources mResources;
@@ -31,18 +34,23 @@ public class GameView extends View {
     private int canvasW;//一格画布的宽度
     private int bitmapH;//一片图片的高度
     private int bitmapW;//一片图片的宽度
+
+    private SoundPool soundPool;//声音池
+    private int s_move;//移动声音
+    private int s_error;//不能移动声音
     private OnFinishListener listener;
     public GameView(Context context){
         this(context, null);
     }
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mycontext = context;
         mResources = getResources();
         mBitmap = ((BitmapDrawable)mResources.getDrawable(R.drawable.demo)).getBitmap();
         bitmapW = mBitmap.getWidth()/level;
         bitmapH = mBitmap.getHeight()/level;
         initPatches();
-
+        initSound();
     }
 
     //设置等级
@@ -80,6 +88,13 @@ public class GameView extends View {
         viewH = h;
         canvasW = w/level;
         canvasH = h/level;
+    }
+
+    private void initSound(){
+        //创建一个SoundPool对象，该对象可以容纳2个音频流
+        soundPool=new SoundPool(2, AudioManager.STREAM_MUSIC,0);
+        s_move = soundPool.load(mycontext,R.raw.s_move,1);
+        s_error = soundPool.load(mycontext,R.raw.s_error,1);
     }
 
     private void initPatches(){
@@ -201,11 +216,14 @@ public class GameView extends View {
         Patch emptyPatch = findEmptyPatch();
 
         if(isNeighbor(clickPatch,emptyPatch)){
-            change(clickPatch,emptyPatch);
+            soundPool.play(s_move,1,1,0,0,1);
+            change(clickPatch, emptyPatch);
             invalidate();
             if(isFinish()){
                 listener.onFinish();
             }
+        }else{
+            soundPool.play(s_error,1,1,0,0,1);
         }
     }
 
@@ -290,5 +308,10 @@ public class GameView extends View {
 
     public interface OnFinishListener{
        public void onFinish();
+    }
+
+    /*释放资源*/
+    public void releaseSoundPool(){
+        soundPool.release();
     }
 }
