@@ -310,8 +310,10 @@ public class GameView extends View {
        public void onFinish();
     }
 
-    /*释放资源*/
-    public void releaseSoundPool(){
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
         soundPool.release();
     }
+
 }
