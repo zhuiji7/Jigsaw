@@ -1,12 +1,12 @@
 package com.zhuiji7.jigsaw;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.zhuiji7.jigsaw.view.GameView;
@@ -14,6 +14,7 @@ import com.zhuiji7.jigsaw.view.GameView;
 public class MainActivity extends AppCompatActivity {
     private GameView gameView;
     int level = 3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,24 +22,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.ac_toolbar_toolbar);
 
         setSupportActionBar(toolbar);
-        gameView = (GameView)this.findViewById(R.id.game_view);
+        gameView = (GameView) this.findViewById(R.id.game_view);
         gameView.setOnFinishListener(new GameView.OnFinishListener() {
             @Override
             public void onFinish() {
                 Toast.makeText(MainActivity.this, "恭喜你完成拼图", Toast.LENGTH_LONG).show();
-            }
-        });
-
-        //增加组件绘制之前的监听
-
-        ViewTreeObserver vto = gameView.getViewTreeObserver();
-
-        vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                Log.d("ddd", "高度--->" + gameView.getHeight());
-                Log.d("ddd","宽度--->" + gameView.getWidth());
-                return true;
             }
         });
 
@@ -56,12 +44,16 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.settings_1) {
             level = 3;
             gameView.setLevel(level);
-        }else if(id == R.id.settings_2){
+        } else if (id == R.id.settings_2) {
             level = 4;
             gameView.setLevel(level);
-        }else if(id == R.id.settings_3){
+        } else if (id == R.id.settings_3) {
             level = 5;
             gameView.setLevel(level);
+        } else if (id == R.id.settings_4) {
+            Uri uri = Uri.parse(getString(R.string.project_url));
+            Intent it = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(it);
         }
 
         return super.onOptionsItemSelected(item);

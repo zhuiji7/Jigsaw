@@ -3,7 +3,8 @@
     <string name="settings_1">简单</string>
     <string name="settings_2">中级</string>
     <string name="settings_3">高级</string>
-    <string name="settings_4">settings</string>
+    <string name="settings_4">项目地址</string>
+    <string name="project_url">https://github.com/zhuiji7/Jigsaw</string>
 
 
 </resources>
