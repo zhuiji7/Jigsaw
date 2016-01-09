@@ -74,6 +74,18 @@ public class GameView extends View {
         this.listener = listener;
     }
 
+    //默认正方形
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
+        int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
+        if(heightSpecMode == MeasureSpec.AT_MOST){
+            setMeasuredDimension(widthSpecSize,widthSpecSize);
+        }
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
